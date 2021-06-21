@@ -11,26 +11,97 @@ from django.urls import reverse
 stripe.api_key = "PUT YOUR STRIPE SECRET KEY also put public key on blog/post_form.html"
 
 from .forms import CommentForm, post_create
-from .models import Post, Comment
+from .models import Post, Comment, Credit
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+
+
+def CPointsPlans(request, plans):
+    if plans == 'Bronze':
+        return render(request, 'creditTemp/bronze.html')
+
+    elif plans == 'Silver':
+        return render(request, 'creditTemp/bronze.html')
+
+    elif plans == 'Gold':
+        return render(request, 'creditTemp/bronze.html')
+
+    else:
+        return HttpResponse('something wrong here')
+
+
+def CPoints(request):
+    if request.method == 'POST' and 'btnBronze' in request.POST:
+        try:
+            amount = int(request.POST['amount'])
+            customer = stripe.Customer.create(
+                email='btnBronze@gmail.com',
+                name='btnBronze',
+                source=request.POST['stripeToken'],
+                address={
+                    'line1': '510 Townsend St',
+                    'postal_code': '98140',
+                    'city': 'San Francisco',
+                    'state': 'CA',
+                    'country': 'US',
+                },
+
+            )
+
+            charge = stripe.Charge.create(
+                customer=customer,
+                amount=amount * 100,
+                currency='usd',
+                description="donation"
+
+            )
+
+            user = request.user
+            cred = Credit.objects.get(author=user)
+            add = cred.Credit_Points
+            gg = add + int(100)
+            Credit.objects.filter(author=request.user).update(Credit_Points=gg)
+
+            return redirect('blog-home')
+
+        except:
+            HttpResponse('form is invalid')
+
+    if request.method == 'POST' and 'btnSilver' in request.POST:
+        pass
+    if request.method == 'POST' and 'btnGold' in request.POST:
+        pass
+    else:
+        return render(request, 'creditTemp/credit.html')
 
 
 def home(request):
     abc = Post.objects.order_by('-date_posted')
+    cred = Credit.objects.filter(author=request.user)
+    print('-=--------------------------credPoints=-----------------', cred)
     context = {
         'posts': Post.objects.all(),
-        'abc': abc
+        'abc': abc,
+        'cred': cred
 
     }
     return render(request, 'blog/home.html', context)
 
 
 class PostListView(ListView):
-    model = Post
     template_name = 'blog/home.html'  # <app>/<model>_<viewtype>.html
     context_object_name = 'posts'
     ordering = ['-date_posted']
     paginate_by = 10
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(PostListView, self).get_context_data(**kwargs)
+    #     context.update({
+    #         'credss': Credit.objects.filter(author=self.request.user),
+    #     })
+    #     return context
+
+    def get_queryset(self):
+        return Post.objects.all()
 
 
 class UserPostListView(ListView):
@@ -68,35 +139,43 @@ def post_create1(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.author = request.user
-            try:
-                amount = int(request.POST['amount'])
-                customer = stripe.Customer.create(
-                    email=request.POST['email'],
-                    name=request.POST['nickname'],
-                    source=request.POST['stripeToken'],
-                    address={
-                        'line1': '510 Townsend St',
-                        'postal_code': '98140',
-                        'city': 'San Francisco',
-                        'state': 'CA',
-                        'country': 'US',
-                    },
-
-                )
-
-                charge = stripe.Charge.create(
-                    customer=customer,
-                    amount=amount * 100,
-                    currency='usd',
-                    description="donation"
-
-                )
-
+            cred = Credit.objects.get(author=request.user)
+            add = cred.Credit_Points
+            if add > int(20):
+                gg = add - int(20)
+                Credit.objects.filter(author=request.user).update(Credit_Points=gg)
                 user.save()
-                return redirect('blog-home')
-
-            except:
-                HttpResponse('form is invalid')
+            else:
+                print('you have no credits')
+            # try:
+            #     amount = int(request.POST['amount'])
+            #     customer = stripe.Customer.create(
+            #         email=request.POST['email'],
+            #         name=request.POST['nickname'],
+            #         source=request.POST['stripeToken'],
+            #         address={
+            #             'line1': '510 Townsend St',
+            #             'postal_code': '98140',
+            #             'city': 'San Francisco',
+            #             'state': 'CA',
+            #             'country': 'US',
+            #         },
+            #
+            #     )
+            #
+            #     charge = stripe.Charge.create(
+            #         customer=customer,
+            #         amount=amount * 100,
+            #         currency='usd',
+            #         description="donation"
+            #
+            #     )
+            #
+            #     user.save()
+            #     return redirect('blog-home')
+            #
+            # except:
+            #     HttpResponse('form is invalid')
 
     else:
         form = post_create()

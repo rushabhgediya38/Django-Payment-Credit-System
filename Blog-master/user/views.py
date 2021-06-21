@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from user.forms import ProfileUpdateForm, UserUpdateForm
+from .forms import ProfileUpdateForm, UserUpdateForm
 
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib import auth
 
+from blog.models import Credit
 
 # def register(request):
 #     if request.method == 'POST':
@@ -76,11 +77,19 @@ def registerT(request):
         email1 = request.POST['email']
         password1 = request.POST['password']
 
+        if User.objects.filter(email=email1).exists():
+            messages.add_message(request, messages.ERROR, 'Email Already Exists')
+            return render(request, 'users/registerT.html')
+
         user = User.objects.create_user(username=user_name1, email=email1, password=password1)
         user.first_name = first_name1
         user.last_name = last_name1
         user.is_active = True
         user.save()
+
+        cred = Credit.objects.create(author=user, Credit_Points=20)
+        cred.save()
+
         return render(request, 'users/loginT.html')
 
     else:

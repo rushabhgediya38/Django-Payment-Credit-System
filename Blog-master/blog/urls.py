@@ -21,5 +21,7 @@ urlpatterns = [
     # path('post/new/', PostCreateView.as_view(template_name='blog/post_form.html'), name='post-create'),
     path('about/', views.about, name='blog-about'),
     path('post/post_create/', post_create1, name='post_create'),
+    path('credit/points/', views.CPoints, name='credit_points'),
+    path('credit/points/<str:plans>/', views.CPointsPlans, name='CPointsPlans'),
 
 ]
