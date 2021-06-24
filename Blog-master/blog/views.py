@@ -8,7 +8,7 @@ import stripe
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import reverse
 
-stripe.api_key = "PUT YOUR STRIPE SECRET KEY also put public key on blog/post_form.html"
+stripe.api_key = "sk_test_m8uMqrmqBO20oqFVcziqdXiY00XaPhx8AN"
 
 from .forms import CommentForm, post_create
 from .models import Post, Comment, Credit
@@ -20,22 +20,22 @@ def CPointsPlans(request, plans):
         return render(request, 'creditTemp/bronze.html')
 
     elif plans == 'Silver':
-        return render(request, 'creditTemp/bronze.html')
+        return render(request, 'creditTemp/silver.html')
 
     elif plans == 'Gold':
-        return render(request, 'creditTemp/bronze.html')
+        return render(request, 'creditTemp/gold.html')
 
     else:
-        return HttpResponse('something wrong here')
+        return render(request, 'creditTemp/credit.html')
 
 
-def CPoints(request):
-    if request.method == 'POST' and 'btnBronze' in request.POST:
+def BronzePlan(request):
+    if request.method == 'POST':
         try:
             amount = int(request.POST['amount'])
             customer = stripe.Customer.create(
-                email='btnBronze@gmail.com',
-                name='btnBronze',
+                email=request.POST['email'],
+                name=request.POST['nickname'],
                 source=request.POST['stripeToken'],
                 address={
                     'line1': '510 Townsend St',
@@ -51,7 +51,7 @@ def CPoints(request):
                 customer=customer,
                 amount=amount * 100,
                 currency='usd',
-                description="donation"
+                description="Bronze"
 
             )
 
@@ -66,12 +66,85 @@ def CPoints(request):
         except:
             HttpResponse('form is invalid')
 
-    if request.method == 'POST' and 'btnSilver' in request.POST:
-        pass
-    if request.method == 'POST' and 'btnGold' in request.POST:
-        pass
-    else:
-        return render(request, 'creditTemp/credit.html')
+
+def SilverPlan(request):
+    if request.method == 'POST':
+        try:
+            amount = int(request.POST['amount'])
+            customer = stripe.Customer.create(
+                email=request.POST['email'],
+                name=request.POST['nickname'],
+                source=request.POST['stripeToken'],
+                address={
+                    'line1': '510 Townsend St',
+                    'postal_code': '98140',
+                    'city': 'San Francisco',
+                    'state': 'CA',
+                    'country': 'US',
+                },
+
+            )
+
+            charge = stripe.Charge.create(
+                customer=customer,
+                amount=amount * 100,
+                currency='usd',
+                description="Bronze"
+
+            )
+
+            user = request.user
+            cred = Credit.objects.get(author=user)
+            add = cred.Credit_Points
+            gg = add + int(220)
+            Credit.objects.filter(author=request.user).update(Credit_Points=gg)
+
+            return redirect('blog-home')
+
+        except:
+            HttpResponse('form is invalid')
+
+
+def GoldPlan(request):
+    if request.method == 'POST':
+        try:
+            amount = int(request.POST['amount'])
+            customer = stripe.Customer.create(
+                email=request.POST['email'],
+                name=request.POST['nickname'],
+                source=request.POST['stripeToken'],
+                address={
+                    'line1': '510 Townsend St',
+                    'postal_code': '98140',
+                    'city': 'San Francisco',
+                    'state': 'CA',
+                    'country': 'US',
+                },
+
+            )
+
+            charge = stripe.Charge.create(
+                customer=customer,
+                amount=amount * 100,
+                currency='usd',
+                description="Bronze"
+
+            )
+
+            user = request.user
+            cred = Credit.objects.get(author=user)
+            add = cred.Credit_Points
+            gg = add + int(500)
+            Credit.objects.filter(author=request.user).update(Credit_Points=gg)
+
+            return redirect('blog-home')
+
+        except:
+            HttpResponse('form is invalid')
+
+
+def CPoints(request):
+    return render(request, 'creditTemp/credit.html')
 
 
 def home(request):

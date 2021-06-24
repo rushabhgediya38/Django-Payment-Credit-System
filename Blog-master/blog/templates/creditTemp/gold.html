@@ -123,7 +123,6 @@ body
     text-align: center;
 }
     </style>
-
     <style>
 	.StripeElement {
 	box-sizing: border-box;
@@ -164,59 +163,58 @@ body
 
     <div class="row">
          <div class="col-xs-12 col-md-3">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            Bronze</h3>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Gold</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="the-price">
+                        <h1>
+                            $35
+                        </h1>
                     </div>
-                    <input type="hidden" value="10" name="amount">
-                    <div class="panel-body">
-                        <div class="the-price">
-                            <h1>
-                                $10<span class="subscript">/mo</span>
-                            </h1>
-                        </div>
-                        <table class="table">
-                            <tr>
-                                <td>
-                                    100 Points
-                                </td>
-                            </tr>
-                            <tr class="active">
-                                <td>
-                                    1 Project
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    100K API Access
-                                </td>
-                            </tr>
-                            <tr class="active">
-                                <td>
-                                    100MB Storage
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Custom Cloud Services
-                                </td>
-                            </tr>
-                            <tr class="active">
-                                <td>
-                                    Weekly Reports
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                    <table class="table">
+                        <tr>
+                            <td>
+                                500 Points
+                            </td>
+                        </tr>
+                        <tr class="active">
+                            <td>
+                                20 Project
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                300K API Access
+                            </td>
+                        </tr>
+                        <tr class="active">
+                            <td>
+                                500MB Storage
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Custom Cloud Services
+                            </td>
+                        </tr>
+                        <tr class="active">
+                            <td>
+                                Weekly Reports
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
+        </div>
     </div>
 
-    <form method='POST' id="payment-form" action="{% url 'BronzePlan' %}">
+    <form method='POST' id="payment-form" action="{% url 'GoldPlan' %}">
         {% csrf_token %}
 
-        <input type="hidden" value="10" name="amount" id="amount">
+        <input type="hidden" value="35" name="amount" id="amount">
 
         <input required type="text" name="email" placeholder="Email">
         <input required type="text" name="nickname" placeholder="nickname">
@@ -233,7 +231,7 @@ body
         <div id="card-errors" role="alert"></div>
 
         <div class="form-group">
-            <button class="btn btn-primary" value="Submit Payment" type="submit">Post</button>
+            <button class="btn btn-primary" value="Submit Payment" type="submit">Buy</button>
         </div>
 
     </form>
