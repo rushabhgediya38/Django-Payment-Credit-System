@@ -1,0 +1,157 @@
+<!doctype html>
+{% load static %}
+{% load humanize %}
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+
+<!--      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+<!--      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+    <title>Hello, world!</title>
+
+    <style>
+        .text-blur {
+            color: transparent;
+            text-shadow: 0 0 8px rgb(0 0 0 / 50%);
+        }
+    </style>
+  </head>
+
+  <body>
+
+  <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+        <div class="container">
+          <a class="navbar-brand mr-4" href="{% url 'blog-home' %}">Django Blog</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggle">
+            <!-- Navbar Right Side -->
+
+            <div class="navbar-nav">
+              {% if user.is_authenticated %}
+                <p class="nav-item"><b> Credits ({{cred}}) </b></p>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </nav>
+
+    </header>
+
+
+    <div class="container">
+
+        <form method="post" action="{% url 'premium-data' %}">
+        {% csrf_token %}
+
+        <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Checkbox</th>
+                <th>Keywords</th>
+                <th>Search Volume</th>
+                <th>Trend</th>
+                <th>CPC</th>
+                <th>Competition</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for i in data %}
+                <tr class="tr-class-2">
+                    <td><input type="checkbox"></td>
+                    <td>{{i.keyword_name}}</td>
+                    <td>{{i.search_volums| intcomma}}</td>
+                    <td >+{{i.Trend}}%</td>
+                    <td >${{i.cpc}}</td>
+                    <td >{{i.competition}}</td>
+                </tr>
+            {% endfor %}
+
+            {% if all_premium_exclude %}
+                {% for j in all_premium_exclude %}
+                    <tr class="tr-class-2">
+                        <td><input type="checkbox"></td>
+                        <td>{{j.keyword_name}}</td>
+                        <td>{{j.search_volums| intcomma}}</td>
+                        <td >+{{j.Trend}}%</td>
+                        <td >${{j.cpc}}</td>
+                        <td >{{j.competition}}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+            {% for k in after %}
+
+                <tr class="tr-class-2">
+                    <td><input type="checkbox" name="fcm" value="{{k.id}}"/></td>
+                    <td>{{k.keyword_name}}</td>
+                    <td class="text-blur">88,888</td>
+                    <td class="text-blur">+88%</td>
+                    <td class="text-blur">$88</td>
+                    <td class="text-blur">High</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+        <h4 class="text-center"><b>30</b> credit(s) charged per <b>ROW</b></h4>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<!--    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
+
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>-->
+<!--    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>-->
+
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+
+<!--   <script type="text/javascript">-->
+<!--    $(function () {-->
+<!--        $("#btnGet").click(function () {-->
+<!--            //Create an Array.-->
+<!--            var selected = new Array();-->
+
+<!--            //Reference the CheckBoxes and insert the checked CheckBox value in Array.-->
+<!--            $("#tblFruits input[type=checkbox]:checked").each(function () {-->
+<!--                selected.push(this.value);-->
+<!--            });-->
+
+<!--            //Display the selected CheckBox values.-->
+<!--            if (selected.length > 0) {-->
+<!--                var kk = selected.length;-->
+
+<!--                document.getElementById("ser").innerHTML = kk;-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+<!--    </script>-->
+
+    <script>
+    $(document).ready(function() {
+        $('#example').DataTable();
+    });
+    </script>
+
+  </body>
+</html>
+

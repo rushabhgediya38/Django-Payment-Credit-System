@@ -1,6 +1,9 @@
+from django.db.models import Q
+
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 from django.urls import reverse_lazy
 
@@ -11,7 +14,7 @@ from django.urls import reverse
 stripe.api_key = "sk_test_m8uMqrmqBO20oqFVcziqdXiY00XaPhx8AN"
 
 from .forms import CommentForm, post_create
-from .models import Post, Comment, Credit
+from .models import Post, Comment, Credit, SSList
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
@@ -311,3 +314,132 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
+
+
+# @login_required()
+# def premium_data(request):
+#     if request.method == 'POST':
+#         checkbox_data = request.POST.getlist('fcm')
+#
+#         if len(checkbox_data) == 0:
+#             return redirect('premium-data')
+#
+#         print('-------------------------------------------------', checkbox_data)  # ['7', '8', '9']
+#         print(type(checkbox_data))  # list
+#         # print('len', len(checkbox_data))  # length of list ex: 3
+#         len_list = len(checkbox_data)
+#         total_credit = int(len_list) * 30
+#         print('total-credit is', total_credit)
+#
+#         # now we check if user have Enuff Credit to purchase this premium data
+#         cred = Credit.objects.get(author=request.user)
+#         credit_points = cred.Credit_Points
+#         if credit_points >= int(total_credit):
+#             print('user have credits')
+#
+#             # now we cut the credit points
+#             gg = credit_points - int(total_credit)
+#             Credit.objects.filter(author=request.user).update(Credit_Points=gg)
+#
+#             # now we add premium data to user account
+#             for i in checkbox_data:
+#                 data1 = int(i)
+#                 dd = SSList.objects.filter(id=data1)[0]
+#                 # SSListUser.objects.create(name=dd, user=request.user)
+#
+#             return HttpResponse('done')
+#
+#         else:
+#             return HttpResponse('user have not credit')
+#
+#     if request.method == 'GET':
+#         first_five_data = SSList.objects.all()[:5]
+#
+#         # user_premium_data = SSListUser.objects.filter(user=request.user)
+#         user_premium_list = []
+#         # for iii in user_premium_data:
+#         #     user_premium_list.append(iii.name_id)
+#         # print(user_premium_list)
+#         all_premium_exclude = SSList.objects.filter(id__in=user_premium_list)
+#         # print(all_premium_exclude)
+#
+#         # user_premium_data_id = SSListUser.objects.filter(user=request.user)
+#         user_id_list = []
+#         # for iii in user_premium_data_id:
+#         #     user_id_list.append(iii.name_id)
+#         # print('---------------------iii-----------------', user_id_list)
+#
+#         all_data_exclude = SSList.objects.filter(~Q(id__in=user_id_list))[5:]
+#         # print('------------------------------EXCLUDE-----------------------', all_data_exclude)
+#         # all_data_exclude = SSList.objects.exclude(user=request.user)
+#         context = {
+#             'data': first_five_data,
+#             'after': all_data_exclude,
+#             'all_premium_exclude': all_premium_exclude
+#         }
+#         return render(request, 'premiumData/premium.html', context)
+
+
+@login_required()
+def premium_data(request):
+    if request.method == 'POST':
+        checkbox_data = request.POST.getlist('fcm')
+
+        if len(checkbox_data) == 0:
+            return redirect('premium-data')
+
+        print('-------------------------------------------------', checkbox_data)  # ['7', '8', '9']
+        print(type(checkbox_data))  # list
+        # print('len', len(checkbox_data))  # length of list ex: 3
+        len_list = len(checkbox_data)
+        total_credit = int(len_list) * 30
+        print('total-credit is', total_credit)
+
+        # now we check if user have Enuff Credit to purchase this premium data
+        cred = Credit.objects.get(author=request.user)
+        credit_points = cred.Credit_Points
+        if credit_points >= int(total_credit):
+            print('user have credits')
+
+            # now we cut the credit points
+            gg = credit_points - int(total_credit)
+            Credit.objects.filter(author=request.user).update(Credit_Points=gg)
+
+            # now we add premium data to user account
+            for i in checkbox_data:
+                data1 = int(i)
+                dd = SSList.objects.get(id=data1)
+                dd.user1.add(request.user.id)
+                print(dd)
+                print(request.user.id)
+                dd.save()
+            return HttpResponse('done')
+        else:
+            return HttpResponse('user have not credit')
+
+    if request.method == 'GET':
+        first_five_data = SSList.objects.all()[:5]
+
+        user_premium_data = SSList.objects.filter(user1=request.user.id)
+        user_premium_list = []
+        for iii in user_premium_data:
+            user_premium_list.append(iii.id)
+        # print(user_premium_list)
+        all_premium_exclude = SSList.objects.filter(id__in=user_premium_list)
+        # print(all_premium_exclude)
+
+        user_premium_data_id = SSList.objects.filter(user1=request.user)
+        user_id_list = []
+        for iii in user_premium_data_id:
+            user_id_list.append(iii.id)
+        print('---------------------iii-----------------', user_id_list)
+
+        all_data_exclude = SSList.objects.filter(~Q(id__in=user_id_list))[5:]
+        # print('------------------------------EXCLUDE-----------------------', all_data_exclude)
+        # all_data_exclude = SSList.objects.exclude(user=request.user)
+        context = {
+            'data': first_five_data,
+            'after': all_data_exclude,
+            'all_premium_exclude': all_premium_exclude
+        }
+        return render(request, 'premiumData/premium.html', context)

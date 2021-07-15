@@ -43,4 +43,21 @@ class Comment(models.Model):
     #     return reverse('post-detail', kwargs={'pk': self.pk})
 
 
+class SSList(models.Model):
+    keyword_name = models.CharField(max_length=100)
+    search_volums = models.IntegerField()
+    Trend = models.IntegerField()
+    cpc = models.FloatField()
+    competition = models.CharField(max_length=20)
+    user1 = models.ManyToManyField(User, blank=True, null=True, related_name='user_list')
 
+    def __str__(self):
+        return f'{self.keyword_name} - {self.id}'
+
+
+# class SSListUser(models.Model):
+#     name = models.ForeignKey(SSList, on_delete=models.CASCADE)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+#
+#     def __str__(self):
+#         return f'{self.name} - {self.user}'

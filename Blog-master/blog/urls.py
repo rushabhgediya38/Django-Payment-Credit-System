@@ -27,5 +27,6 @@ urlpatterns = [
     path('BronzePlan', views.BronzePlan, name='BronzePlan'),
     path('SilverPlan', views.SilverPlan, name='SilverPlan'),
     path('GoldPlan', views.GoldPlan, name='GoldPlan'),
+    path('premium-data/', views.premium_data, name='premium-data')
 
 ]
