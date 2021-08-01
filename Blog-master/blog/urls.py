@@ -9,6 +9,7 @@ from blog.views import (PostListView,
                         )
 
 from .views import post_create1
+from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     path('', PostListView.as_view(), name='blog-home'),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('BronzePlan', views.BronzePlan, name='BronzePlan'),
     path('SilverPlan', views.SilverPlan, name='SilverPlan'),
     path('GoldPlan', views.GoldPlan, name='GoldPlan'),
-    path('premium-data/', views.premium_data, name='premium-data')
+    path('premium-data/', views.premium_data, name='premium-data'),
+    path('StartupSubmissionListTestesing/', csrf_exempt(views.StartupSubmissionListTestesing), name='StartupSubmissionListTestesing')
 
 ]

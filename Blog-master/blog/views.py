@@ -1,5 +1,9 @@
 from django.db.models import Q
 
+import json
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core import serializers
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -14,7 +18,7 @@ from django.urls import reverse
 stripe.api_key = "sk_test_m8uMqrmqBO20oqFVcziqdXiY00XaPhx8AN"
 
 from .forms import CommentForm, post_create
-from .models import Post, Comment, Credit, SSList
+from .models import Post, Comment, Credit, StartupSubmissionList
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
@@ -418,28 +422,98 @@ def premium_data(request):
             return HttpResponse('user have not credit')
 
     if request.method == 'GET':
-        first_five_data = SSList.objects.all()[:5]
+        first_five_data = StartupSubmissionList.objects.all()[:5]
 
-        user_premium_data = SSList.objects.filter(user1=request.user.id)
+        user_premium_data = StartupSubmissionList.objects.filter(user=request.user.id)
         user_premium_list = []
         for iii in user_premium_data:
             user_premium_list.append(iii.id)
         # print(user_premium_list)
-        all_premium_exclude = SSList.objects.filter(id__in=user_premium_list)
+        all_premium_exclude = StartupSubmissionList.objects.filter(id__in=user_premium_list)
         # print(all_premium_exclude)
 
-        user_premium_data_id = SSList.objects.filter(user1=request.user)
+        user_premium_data_id = StartupSubmissionList.objects.filter(user=request.user)
         user_id_list = []
         for iii in user_premium_data_id:
             user_id_list.append(iii.id)
         print('---------------------iii-----------------', user_id_list)
 
-        all_data_exclude = SSList.objects.filter(~Q(id__in=user_id_list))[5:]
+        all_data_exclude = StartupSubmissionList.objects.filter(~Q(id__in=user_id_list))[5:]
         # print('------------------------------EXCLUDE-----------------------', all_data_exclude)
         # all_data_exclude = SSList.objects.exclude(user=request.user)
+
+        # while StartupSubmissionList.objects.count():
+        #     StartupSubmissionList.objects.all().delete()
+
         context = {
             'data': first_five_data,
             'after': all_data_exclude,
             'all_premium_exclude': all_premium_exclude
         }
-        return render(request, 'premiumData/premium.html', context)
+        return render(request, 'premiumData/premium.html')
+
+@login_required()
+def StartupSubmissionListTestesing(request):
+    if request.method == 'POST':
+        datatables = request.POST
+        # Ambil draw
+        draw = int(datatables.get('draw'))  #1
+        # Ambil start
+        start = int(datatables.get('start'))  #0
+     
+        # Ambil length (limit)
+        length = int(datatables.get('length')) # 10
+      
+        # Ambil data search
+        search = datatables.get('search[value]')
+        # Set record total
+        records_total = StartupSubmissionList.objects.all().count() #2048
+        print('records_total', records_total)
+        # Set records filtered
+        records_filtered = int(records_total)
+
+        invoices = StartupSubmissionList.objects.all()
+
+        if search:
+            invoices = StartupSubmissionList.objects.filter(
+                    Q(name__icontains=search)|
+                    Q(site__icontains=search)|
+                    Q(site_type__icontains=search)|
+                    Q(da_score__icontains=search)|
+                    Q(monthly_traffic__icontains=search)|
+                    Q(follow_unfollow_link__icontains=search)
+                )
+            records_total = invoices.count()
+            records_filtered = records_total
+
+        # Atur paginator
+        paginator = Paginator(invoices, length)
+
+        try:
+            object_list = paginator.page(draw).object_list
+        except PageNotAnInteger:
+            object_list = paginator.page(draw).object_list
+        except EmptyPage:
+            object_list = paginator.page(paginator.num_pages).object_list
+
+        data = [
+            {   
+                'id': inv.id,
+                'name': inv.name,
+                'site': inv.site,
+                'site_type': inv.site_type,
+                'da_score': inv.da_score,
+                'monthly_traffic': inv.monthly_traffic,
+                'follow_unfollow_link': inv.follow_unfollow_link,
+            } for inv in object_list
+        ]
+
+        context = {
+            'draw': draw,
+            'recordsTotal': records_total,
+            'recordsFiltered': records_filtered,
+            'data': data,
+        }
+        
+        return JsonResponse(context, safe=False)
+

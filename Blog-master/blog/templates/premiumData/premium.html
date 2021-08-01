@@ -60,53 +60,18 @@
         <table id="example" class="display" style="width:100%">
         <thead>
             <tr>
-                <th>Checkbox</th>
-                <th>Keywords</th>
-                <th>Search Volume</th>
-                <th>Trend</th>
-                <th>CPC</th>
-                <th>Competition</th>
+                <th class="all"><input type="CheckBox">&nbsp; Select</th>
+                <th class="all">Name</th>
+                <th>Site</th>
+                <th>Site Type</th>
+                <th>DA Score</th>
+                <th>Monthly Traffic</th>
+                <th>Follow/Unfollow Link</th>
             </tr>
         </thead>
         <tbody>
 
-            {% for i in data %}
-                <tr class="tr-class-2">
-                    <td><input type="checkbox"></td>
-                    <td>{{i.keyword_name}}</td>
-                    <td>{{i.search_volums| intcomma}}</td>
-                    <td >+{{i.Trend}}%</td>
-                    <td >${{i.cpc}}</td>
-                    <td >{{i.competition}}</td>
-                </tr>
-            {% endfor %}
-
-            {% if all_premium_exclude %}
-                {% for j in all_premium_exclude %}
-                    <tr class="tr-class-2">
-                        <td><input type="checkbox"></td>
-                        <td>{{j.keyword_name}}</td>
-                        <td>{{j.search_volums| intcomma}}</td>
-                        <td >+{{j.Trend}}%</td>
-                        <td >${{j.cpc}}</td>
-                        <td >{{j.competition}}</td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-
-            {% for k in after %}
-
-                <tr class="tr-class-2">
-                    <td><input type="checkbox" name="fcm" value="{{k.id}}"/></td>
-                    <td>{{k.keyword_name}}</td>
-                    <td class="text-blur">88,888</td>
-                    <td class="text-blur">+88%</td>
-                    <td class="text-blur">$88</td>
-                    <td class="text-blur">High</td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
+        </tbody>
         </table>
 
         <button type="submit" class="btn btn-primary">Submit</button>
@@ -146,9 +111,75 @@
 <!--    });-->
 <!--    </script>-->
 
-    <script>
+    <!-- <script>
     $(document).ready(function() {
-        $('#example').DataTable();
+        
+        let table = $('#example').DataTable({
+            paging: true,
+            processing: true,
+            ajax: function ( data, callback, settings ) {
+
+                $.ajax({
+                    url: '{% url 'StartupSubmissionListTestesing' %}',
+                    // dataType: 'text',
+                    type: 'post',
+                    // data: {
+                    //     RecordsStart: data.start,
+                    //     PageSize: data.length
+                    // },
+                    success: function( data, textStatus, jQxhr ){
+                        callback({
+                            // draw: data.draw,
+                            data: data,
+                            // recordsTotal:  data.TotalRecords,
+                            // recordsFiltered:  data.RecordsFiltered
+                        });
+                    },
+                    error: function( jqXhr, textStatus, errorThrown ){
+                    }
+                });
+            },
+            serverSide: true,
+            "columns": [
+                {"data": "name"},
+                {"data": "site"},
+                {"data": "site_type"},
+                {"data": "da_score"},
+                {"data": "monthly_traffic"},
+                {"data": "follow_unfollow_link"},
+            ]
+        });
+    });
+    </script> -->
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('#example').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "paging": true,
+            "pageLength": 50,
+        
+            "ajax": {
+                "url": "{% url 'StartupSubmissionListTestesing' %}",
+                "type": "POST"
+            },
+            "columns": [
+                { 
+                    "data": "id",                   
+                    "render": function ( data, type, row ) {
+                        return '<input type="checkbox" id="devel-generate-content-form" class="checkbox chk" name="fcm" value="'+data+'"/>';
+                    }
+                },
+                { "data": "name" },
+                { "data": "site" },
+                { "data": "site_type" },
+                { "data": "da_score" },
+                { "data": "monthly_traffic" },
+                { "data": "follow_unfollow_link" },
+                
+            ]
+        });
     });
     </script>
 

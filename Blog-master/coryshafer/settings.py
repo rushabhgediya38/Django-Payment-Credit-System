@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -134,3 +135,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 LOGIN_REDIRECT_URL = 'blog-home'
 LOGIN_URL = 'login'
+
+
+# Disabled for large email operations (> 1000 rows)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 1.6e+7
+DATA_UPLOAD_MAX_MEMORY_SIZE = None

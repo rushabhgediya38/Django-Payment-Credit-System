@@ -43,16 +43,21 @@ class Comment(models.Model):
     #     return reverse('post-detail', kwargs={'pk': self.pk})
 
 
-class SSList(models.Model):
-    keyword_name = models.CharField(max_length=100)
-    search_volums = models.IntegerField()
-    Trend = models.IntegerField()
-    cpc = models.FloatField()
-    competition = models.CharField(max_length=20)
-    user1 = models.ManyToManyField(User, blank=True, null=True, related_name='user_list')
+class StartupSubmissionList(models.Model):
+    name = models.CharField(max_length=100)
+    site = models.CharField(max_length=256, null=True, blank=True)
+    site_type = models.CharField(max_length=256, null=True, blank=True)
+    da_score = models.IntegerField(default=0)
+    monthly_traffic = models.IntegerField(default=0)
+    follow_unfollow_link = models.CharField(max_length=256, null=True, blank=True)
+    user = models.ManyToManyField(User, blank=True, related_name='user_list')
 
     def __str__(self):
-        return f'{self.keyword_name} - {self.id}'
+        return f'{self.name} - {self.id}'
+
+    class Meta:
+        verbose_name_plural = "Startup Submission List"
+        ordering = ['id']
 
 
 # class SSListUser(models.Model):

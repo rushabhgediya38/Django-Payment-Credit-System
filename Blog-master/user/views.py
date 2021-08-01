@@ -94,6 +94,3 @@ def registerT(request):
 
     else:
         return render(request, 'users/registerT.html')
-
-
-
